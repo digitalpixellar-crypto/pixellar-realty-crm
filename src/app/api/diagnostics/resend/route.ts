@@ -54,12 +54,46 @@ export async function GET() {
     });
     const sendData = await sendRes.json().catch(() => ({}));
     testSendResult = {
+      from: fromEmail,
       status: sendRes.status,
       ok: sendRes.ok,
       data: sendData,
     };
   } catch (e: any) {
     testSendResult = {
+      from: fromEmail,
+      status: 500,
+      ok: false,
+      error: e.message,
+    };
+  }
+
+  // 3. Test sending from verified domain mail.digitalpixellar.com
+  let testVerifiedDomainResult: any = null;
+  try {
+    const verifiedSendRes = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: 'PIXELLAR REALTY CRM <auth@mail.digitalpixellar.com>',
+        to: ['digitalpixellar@gmail.com'],
+        subject: 'Verified Subdomain Delivery Test - Pixellar Realty CRM',
+        text: 'This email was delivered via verified domain mail.digitalpixellar.com to confirm instant inbox delivery.',
+      }),
+    });
+    const verifiedData = await verifiedSendRes.json().catch(() => ({}));
+    testVerifiedDomainResult = {
+      from: 'PIXELLAR REALTY CRM <auth@mail.digitalpixellar.com>',
+      status: verifiedSendRes.status,
+      ok: verifiedSendRes.ok,
+      data: verifiedData,
+    };
+  } catch (e: any) {
+    testVerifiedDomainResult = {
+      from: 'PIXELLAR REALTY CRM <auth@mail.digitalpixellar.com>',
       status: 500,
       ok: false,
       error: e.message,
@@ -74,5 +108,6 @@ export async function GET() {
     domainsData,
     domainsError,
     testSendResult,
+    testVerifiedDomainResult,
   });
 }

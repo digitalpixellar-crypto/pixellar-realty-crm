@@ -128,7 +128,7 @@ export const SEED_PLATFORM_ADMINS: PlatformAdmin[] = [
   {
     id: 'admin-yeswanth-01',
     user_id: 'usr-yeswanth-reddy',
-    email: 'owner@digitalpixellar.com',
+    email: 'digitalpixellar@gmail.com',
     full_name: 'K. Yeswanth Kumar Reddy',
     role: 'superadmin',
     is_active: true,

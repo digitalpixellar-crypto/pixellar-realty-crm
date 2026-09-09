@@ -5,7 +5,7 @@ async function main() {
   console.log('PIXELLAR REALTY CRM - DEVELOPMENT SEED SCRIPT');
   console.log('=====================================================');
   console.log('Notice: This resets and populates the local development database with:');
-  console.log(' - Platform Owner: K. Yeswanth Kumar Reddy (owner@digitalpixellar.com)');
+  console.log(' - Platform Owner: K. Yeswanth Kumar Reddy (digitalpixellar@gmail.com)');
   console.log(' - Company A: Skyline Developers & Builders (skyline-developers)');
   console.log(' - Company B: Greenfield Estates (greenfield-estates)');
   console.log(' - 4 Subscription Plans (Starter, Growth, Business, Enterprise)');

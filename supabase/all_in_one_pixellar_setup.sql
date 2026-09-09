@@ -704,7 +704,7 @@ DECLARE
   invitation_record RECORD;
 BEGIN
   -- 1. Auto-provision Platform Owner superadmin if matching owner email
-  IF LOWER(NEW.email) = 'owner@digitalpixellar.com' THEN
+  IF LOWER(NEW.email) IN ('digitalpixellar@gmail.com', 'owner@digitalpixellar.com') THEN
     INSERT INTO public.platform_admins (user_id, email, full_name, role, is_active)
     VALUES (NEW.id, NEW.email, 'K. Yeswanth Kumar Reddy', 'superadmin', true)
     ON CONFLICT (email) DO UPDATE 

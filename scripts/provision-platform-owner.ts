@@ -1,7 +1,7 @@
 import { db } from '../src/lib/db';
 
 async function main() {
-  const email = process.env.PLATFORM_OWNER_EMAIL || 'owner@digitalpixellar.com';
+  const email = process.env.PLATFORM_OWNER_EMAIL || 'digitalpixellar@gmail.com';
   const name = process.env.PLATFORM_OWNER_NAME || 'K. Yeswanth Kumar Reddy';
 
   console.log('=====================================================');

@@ -16,8 +16,13 @@ import {
   CheckCircle2,
   Trash2,
   UserCheck,
+  RotateCw,
+  ExternalLink,
+  Clock,
+  Send,
 } from 'lucide-react';
 import { revalidatePath } from 'next/cache';
+import { sendEmail, generateInvitationHtml } from '@/lib/mail/resend';
 
 interface SettingsPageProps {
   params: Promise<{ slug: string }>;
@@ -69,10 +74,50 @@ async function handleInviteMember(formData: FormData) {
   const role = formData.get('role') as any;
 
   try {
-    db.createInvitation(company.id, 'mem-vikram-01', email, role);
+    const inv = db.createInvitation(company.id, 'mem-vikram-01', email, role);
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.pixellarrealty.com';
+    const inviteUrl = `${appUrl}/invite/accept?token=${inv.token}`;
+    const roleLabel = ROLE_LABELS[role as keyof typeof ROLE_LABELS] || role;
+
+    await sendEmail({
+      to: email,
+      subject: `You've been invited to join ${company.name} on Pixellar Realty CRM`,
+      html: generateInvitationHtml(email, company.name, roleLabel, 'Company Owner', inviteUrl),
+      text: `Accept your invitation to join ${company.name}: ${inviteUrl}`,
+    });
+
     revalidatePath(`/app/${companySlug}/settings`);
   } catch (err: any) {
     console.error('Invite error:', err);
+  }
+}
+
+async function handleResendInvite(formData: FormData) {
+  'use server';
+  const companySlug = formData.get('company_slug') as string;
+  const token = formData.get('invitation_token') as string;
+  const company = db.getCompany(companySlug);
+  if (!company) return;
+
+  try {
+    const existing = db.getInvitationByToken(token);
+    if (existing) {
+      const refreshed = db.createInvitation(company.id, 'mem-vikram-01', existing.email, existing.role);
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.pixellarrealty.com';
+      const inviteUrl = `${appUrl}/invite/accept?token=${refreshed.token}`;
+      const roleLabel = ROLE_LABELS[existing.role as keyof typeof ROLE_LABELS] || existing.role;
+
+      await sendEmail({
+        to: existing.email,
+        subject: `[REMINDER] You've been invited to join ${company.name} on Pixellar Realty CRM`,
+        html: generateInvitationHtml(existing.email, company.name, roleLabel, 'Company Owner', inviteUrl),
+        text: `Accept your invitation to join ${company.name}: ${inviteUrl}`,
+      });
+    }
+
+    revalidatePath(`/app/${companySlug}/settings`);
+  } catch (err: any) {
+    console.error('Resend error:', err);
   }
 }
 
@@ -104,6 +149,7 @@ export default async function TenantSettingsPage({ params, searchParams }: Setti
   const plan = db.getSubscriptionPlans().find((p) => p.id === company.plan_id);
   const subscription = db.getCompanySubscription(company.id);
   const invoices = db.getSubscriptionInvoices(company.id);
+  const invitations = db.getInvitations(company.id);
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto">
@@ -301,6 +347,87 @@ export default async function TenantSettingsPage({ params, searchParams }: Setti
                 </tbody>
               </table>
             </div>
+          </div>
+
+          {/* Pending Invitations & Resend Mail */}
+          <div className="rounded-xl border border-slate-200 bg-white overflow-hidden shadow-sm">
+            <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+              <div>
+                <h3 className="font-bold text-slate-900 flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-amber-500" />
+                  <span>Pending Invitations & Resend Mail ({invitations.filter((i) => i.status === 'pending').length})</span>
+                </h3>
+                <p className="text-xs text-slate-500">
+                  Invited staff awaiting acceptance. Resend invitation emails directly via Resend.
+                </p>
+              </div>
+            </div>
+
+            {invitations.length === 0 ? (
+              <div className="p-6 text-center text-xs text-slate-400">
+                No invitations issued yet. Use the invite form to add staff.
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-sm text-slate-700">
+                  <thead className="bg-slate-50 text-xs uppercase font-semibold text-slate-500 border-b border-slate-200">
+                    <tr>
+                      <th className="px-6 py-3.5">Invited Email</th>
+                      <th className="px-6 py-3.5">Assigned Role</th>
+                      <th className="px-6 py-3.5">Status</th>
+                      <th className="px-6 py-3.5">Expires</th>
+                      <th className="px-6 py-3.5 text-right">Email Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {invitations.map((inv) => {
+                      const isExpired = new Date(inv.expires_at) < new Date();
+                      return (
+                        <tr key={inv.id} className="hover:bg-slate-50/80 transition-colors">
+                          <td className="px-6 py-4 text-xs font-mono font-bold text-slate-900">{inv.email}</td>
+                          <td className="px-6 py-4">
+                            <span className="text-xs font-semibold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-200">
+                              {ROLE_LABELS[inv.role]}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4">
+                            <StatusBadge status={inv.status === 'pending' ? (isExpired ? 'expired' : 'trial') : 'active'} />
+                          </td>
+                          <td className="px-6 py-4 text-xs text-slate-500">
+                            {new Date(inv.expires_at).toLocaleDateString('en-IN')}
+                          </td>
+                          <td className="px-6 py-4 text-right space-x-2">
+                            {inv.status === 'pending' && (
+                              <form action={handleResendInvite} className="inline">
+                                <input type="hidden" name="company_slug" value={slug} />
+                                <input type="hidden" name="invitation_token" value={inv.token} />
+                                <button
+                                  type="submit"
+                                  className="inline-flex items-center gap-1 text-xs font-bold text-sky-600 hover:text-sky-800 bg-sky-50 hover:bg-sky-100 px-2.5 py-1 rounded-md border border-sky-200 transition-colors"
+                                >
+                                  <RotateCw className="w-3 h-3" />
+                                  <span>Resend Invite Email</span>
+                                </button>
+                              </form>
+                            )}
+                            <a
+                              href={`/invite/accept?token=${inv.token}`}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="inline-flex items-center gap-1 text-xs font-semibold text-slate-500 hover:text-slate-700 underline"
+                              title="Direct acceptance link"
+                            >
+                              <span>Direct Link</span>
+                              <ExternalLink className="w-3 h-3" />
+                            </a>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         </div>
 

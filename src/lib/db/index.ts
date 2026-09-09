@@ -388,6 +388,11 @@ export const db = {
     return state.invitations.find((i) => i.token === token) || null;
   },
 
+  getInvitations(companyId: string): Invitation[] {
+    const state = loadState();
+    return state.invitations.filter((i) => i.company_id === companyId);
+  },
+
   acceptInvitation(token: string, userName: string, userId: string): CompanyMember {
     const state = loadState();
     const invitation = state.invitations.find((i) => i.token === token);

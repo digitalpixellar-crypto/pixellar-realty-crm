@@ -43,6 +43,7 @@ export function LoginForm({ initialEmail = '', initialMessage }: LoginFormProps)
   const [magicSent, setMagicSent] = useState(false);
   const [magicCooldown, setMagicCooldown] = useState(0);
   const [directMagicUrl, setDirectMagicUrl] = useState<string | null>(null);
+  const [resendErrorInfo, setResendErrorInfo] = useState<string | null>(null);
 
   // Countdown timer for resend
   useEffect(() => {
@@ -127,7 +128,13 @@ export function LoginForm({ initialEmail = '', initialMessage }: LoginFormProps)
       setMagicSent(true);
       setMagicCooldown(60);
       setDirectMagicUrl(data.directLoginUrl);
-      setSuccessMessage(`Login link sent to ${magicEmail}!`);
+      if (data.resendError) {
+        setResendErrorInfo(data.resendError);
+        setSuccessMessage(`Login link ready! (Resend status: fallback mode)`);
+      } else {
+        setResendErrorInfo(null);
+        setSuccessMessage(`Login link sent to ${magicEmail}!`);
+      }
     } catch (err: any) {
       setErrorMessage(err.message || 'Error occurred while sending login link');
     } finally {
@@ -325,15 +332,30 @@ export function LoginForm({ initialEmail = '', initialMessage }: LoginFormProps)
               </form>
             ) : (
               <div className="space-y-4 animate-fadeIn">
-                <div className="p-4 rounded-xl bg-sky-950/40 border border-sky-800/60 text-center space-y-2">
-                  <div className="w-10 h-10 rounded-full bg-sky-500/20 text-sky-400 flex items-center justify-center mx-auto">
-                    <Mail className="w-5 h-5" />
+                {resendErrorInfo ? (
+                  <div className="p-3.5 rounded-xl bg-amber-950/50 border border-amber-800/60 text-left space-y-2">
+                    <div className="flex items-center gap-1.5 text-amber-400 font-bold text-xs">
+                      <AlertCircle className="w-4 h-4 shrink-0" />
+                      <span>Resend Mail Service Notice</span>
+                    </div>
+                    <p className="text-[11px] text-amber-200/90 leading-relaxed">
+                      Resend returned: <span className="font-mono text-[10px] text-amber-100 bg-black/40 px-1 py-0.5 rounded break-all">{resendErrorInfo}</span>
+                    </p>
+                    <p className="text-[11px] text-slate-300 font-medium">
+                      👉 <strong>No problem:</strong> Click the green button below to log in instantly without waiting for email delivery.
+                    </p>
                   </div>
-                  <h4 className="font-bold text-sm text-white">Check Your Inbox</h4>
-                  <p className="text-slate-300 text-xs">
-                    We sent a secure sign-in link to <strong className="text-sky-400">{magicEmail}</strong>.
-                  </p>
-                </div>
+                ) : (
+                  <div className="p-4 rounded-xl bg-sky-950/40 border border-sky-800/60 text-center space-y-2">
+                    <div className="w-10 h-10 rounded-full bg-sky-500/20 text-sky-400 flex items-center justify-center mx-auto">
+                      <Mail className="w-5 h-5" />
+                    </div>
+                    <h4 className="font-bold text-sm text-white">Check Your Inbox</h4>
+                    <p className="text-slate-300 text-xs">
+                      We sent a secure sign-in link to <strong className="text-sky-400">{magicEmail}</strong>.
+                    </p>
+                  </div>
+                )}
 
                 {/* Resend Email Button */}
                 <div className="flex flex-col gap-2">

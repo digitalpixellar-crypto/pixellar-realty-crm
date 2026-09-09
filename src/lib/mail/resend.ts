@@ -34,14 +34,15 @@ export async function sendEmail({
   // If live Resend API key is provided, send through Resend API
   if (apiKey && apiKey.startsWith('re_')) {
     try {
-      const res = await fetch(RESEND_API_URL, {
+      let activeFrom = from;
+      let res = await fetch(RESEND_API_URL, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${apiKey}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          from,
+          from: activeFrom,
           to: recipients,
           subject,
           html,
@@ -49,9 +50,38 @@ export async function sendEmail({
         }),
       });
 
-      const data = await res.json();
+      let data = await res.json().catch(() => ({}));
+
+      // Automatic fallback: if custom domain fails verification, retry with onboarding@resend.dev
+      if (!res.ok && activeFrom !== 'PIXELLAR REALTY CRM <onboarding@resend.dev>') {
+        const errLower = JSON.stringify(data).toLowerCase();
+        if (errLower.includes('domain') || errLower.includes('verify') || res.status === 403) {
+          console.warn(`[Resend Auto-Fallback] Sender ${activeFrom} failed (${data.message || 'domain unverified'}). Retrying with onboarding@resend.dev...`);
+          activeFrom = 'PIXELLAR REALTY CRM <onboarding@resend.dev>';
+          res = await fetch(RESEND_API_URL, {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${apiKey}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              from: activeFrom,
+              to: recipients,
+              subject,
+              html,
+              text: text || subject,
+            }),
+          });
+          data = await res.json().catch(() => ({}));
+        }
+      }
+
       if (!res.ok) {
-        throw new Error(data.message || data.error || 'Failed to dispatch email via Resend');
+        const errorMsg =
+          data.message ||
+          data.error ||
+          (data.name ? `${data.name}: ${data.message || JSON.stringify(data)}` : `HTTP ${res.status}: ${JSON.stringify(data)}`);
+        throw new Error(errorMsg);
       }
 
       return {

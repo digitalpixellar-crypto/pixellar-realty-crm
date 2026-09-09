@@ -61,6 +61,7 @@ export async function POST(req: NextRequest) {
       email,
       messageId: emailResult.messageId,
       simulated: emailResult.simulated,
+      resendError: emailResult.error,
       directLoginUrl: magicLoginUrl,
     });
   } catch (err: any) {

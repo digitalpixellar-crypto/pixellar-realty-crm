@@ -1,0 +1,74 @@
+import sharp from 'sharp';
+import fs from 'fs';
+import path from 'path';
+
+const svgIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0284C7" />
+      <stop offset="50%" stop-color="#0F172A" />
+      <stop offset="100%" stop-color="#030712" />
+    </linearGradient>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FCD34D" />
+      <stop offset="100%" stop-color="#F59E0B" />
+    </linearGradient>
+    <linearGradient id="cyanGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8" />
+      <stop offset="100%" stop-color="#0284C7" />
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="16" stdDeviation="24" flood-color="#0284C7" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+
+  <!-- Background with subtle border -->
+  <rect width="512" height="512" rx="112" fill="url(#bgGrad)"/>
+  <rect width="508" height="508" x="2" y="2" rx="110" fill="none" stroke="#38BDF8" stroke-width="3" stroke-opacity="0.25"/>
+
+  <!-- Architectural Tower & Monogram Icon -->
+  <g filter="url(#shadow)">
+    <!-- Tower Left (Residential Villa Plot Tower) -->
+    <path d="M128 368 V 224 L 192 168 V 368 Z" fill="url(#cyanGrad)" opacity="0.85"/>
+    <!-- Central Tower (High-rise Skyscraper) -->
+    <path d="M208 368 V 128 L 256 88 L 304 128 V 368 Z" fill="url(#cyanGrad)"/>
+    <!-- Tower Right (Commercial / Penthouse) -->
+    <path d="M320 368 V 192 L 384 240 V 368 Z" fill="url(#cyanGrad)" opacity="0.75"/>
+
+    <!-- Windows Details on Central Tower -->
+    <rect x="232" y="152" width="16" height="24" rx="4" fill="#FFFFFF" opacity="0.9"/>
+    <rect x="264" y="152" width="16" height="24" rx="4" fill="#FFFFFF" opacity="0.9"/>
+    <rect x="232" y="196" width="16" height="24" rx="4" fill="#FFFFFF" opacity="0.9"/>
+    <rect x="264" y="196" width="16" height="24" rx="4" fill="#FFFFFF" opacity="0.9"/>
+    <rect x="232" y="240" width="16" height="24" rx="4" fill="#FFFFFF" opacity="0.9"/>
+    <rect x="264" y="240" width="16" height="24" rx="4" fill="#FFFFFF" opacity="0.9"/>
+
+    <!-- Gold Key / Milestone Accent (Real Estate Growth) -->
+    <circle cx="256" cy="312" r="16" fill="url(#goldGrad)"/>
+    <path d="M256 328 V 368" stroke="url(#goldGrad)" stroke-width="8" stroke-linecap="round"/>
+
+    <!-- Foundation Base Pedestal -->
+    <rect x="96" y="368" width="320" height="24" rx="8" fill="url(#goldGrad)"/>
+  </g>
+</svg>`;
+
+async function main() {
+  const iconsDir = path.resolve(process.cwd(), 'public/icons');
+  if (!fs.existsSync(iconsDir)) {
+    fs.mkdirSync(iconsDir, { recursive: true });
+  }
+
+  // Save SVG
+  fs.writeFileSync(path.resolve(process.cwd(), 'public/icon.svg'), svgIcon);
+  fs.writeFileSync(path.resolve(iconsDir, 'icon-512.svg'), svgIcon);
+
+  // Generate PNGs with sharp
+  await sharp(Buffer.from(svgIcon)).resize(192, 192).png().toFile(path.resolve(iconsDir, 'icon-192.png'));
+  await sharp(Buffer.from(svgIcon)).resize(512, 512).png().toFile(path.resolve(iconsDir, 'icon-512.png'));
+  await sharp(Buffer.from(svgIcon)).resize(512, 512).png().toFile(path.resolve(iconsDir, 'icon-maskable.png'));
+  await sharp(Buffer.from(svgIcon)).resize(180, 180).png().toFile(path.resolve(iconsDir, 'apple-touch-icon.png'));
+
+  console.log('[OK] Generated all PWA icons (192, 512, maskable, apple-touch-icon, SVG)!');
+}
+
+main().catch(console.error);

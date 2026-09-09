@@ -50,7 +50,7 @@ export function AppSidebar({ company, member }: AppSidebarProps) {
   ];
 
   return (
-    <aside className="w-64 bg-slate-900 text-slate-300 flex flex-col flex-shrink-0 min-h-screen border-r border-slate-800">
+    <aside className="hidden md:flex w-64 bg-slate-900 text-slate-300 flex-col flex-shrink-0 min-h-screen border-r border-slate-800">
       {/* Brand Header */}
       <div className="h-16 flex items-center gap-3 px-5 border-b border-slate-800 bg-slate-950/40">
         <div className="h-9 w-9 rounded-lg bg-gradient-to-br from-brand-500 to-indigo-700 flex items-center justify-center text-white font-bold shadow-md shadow-brand-500/20">

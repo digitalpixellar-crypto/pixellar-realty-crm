@@ -23,7 +23,7 @@
         "tax_identifier": "36AABCS1429B1Z"
       },
       "created_at": "2026-01-15T00:00:00.000Z",
-      "updated_at": "2026-01-15T00:00:00.000Z"
+      "updated_at": "2026-09-09T13:25:49.687Z"
     },
     {
       "id": "comp-greenfield-02",
@@ -55,7 +55,7 @@
     {
       "id": "admin-yeswanth-01",
       "user_id": "usr-yeswanth-reddy",
-      "email": "owner@digitalpixellar.com",
+      "email": "digitalpixellar@gmail.com",
       "full_name": "K. Yeswanth Kumar Reddy",
       "role": "superadmin",
       "is_active": true,
@@ -173,8 +173,8 @@
       "razorpay_subscription_id": "sub_RP1029384756",
       "razorpay_customer_id": "cust_RP987654321",
       "status": "active",
-      "current_period_start": "2026-08-15T00:00:00.000Z",
-      "current_period_end": "2026-09-15T00:00:00.000Z",
+      "current_period_start": "2026-09-09T13:25:49.690Z",
+      "current_period_end": "2026-10-09T13:25:49.690Z",
       "cancel_at_period_end": false,
       "created_at": "2026-01-15T00:00:00.000Z"
     },
@@ -311,9 +311,33 @@
       "is_active": true,
       "created_at": "2026-02-02T00:00:00.000Z",
       "updated_at": "2026-02-02T00:00:00.000Z"
+    },
+    {
+      "id": "mem-1788960349680",
+      "company_id": "comp-skyline-01",
+      "user_id": "usr-test-01",
+      "role": "sales_executive",
+      "name": "Rohith Sharma",
+      "email": "new-agent@skylinedev.com",
+      "is_active": true,
+      "created_at": "2026-09-09T13:25:49.680Z",
+      "updated_at": "2026-09-09T13:25:49.680Z"
     }
   ],
-  "invitations": [],
+  "invitations": [
+    {
+      "id": "inv-1788960349674",
+      "company_id": "comp-skyline-01",
+      "invited_by_member_id": "mem-vikram-01",
+      "email": "new-agent@skylinedev.com",
+      "role": "sales_executive",
+      "token": "inv_1788960349674_j9o7lkcf",
+      "status": "accepted",
+      "expires_at": "2026-09-16T13:25:49.674Z",
+      "created_at": "2026-09-09T13:25:49.674Z",
+      "accepted_at": "2026-09-09T13:25:49.680Z"
+    }
+  ],
   "pipeline_stages": [
     {
       "id": "stage-new-01",
@@ -643,10 +667,11 @@
         }
       ],
       "total_price": 6600000,
-      "status": "available",
-      "lock_version": 0,
+      "status": "booked",
+      "lock_version": 1,
       "created_at": "2026-01-20T00:00:00.000Z",
-      "updated_at": "2026-01-20T00:00:00.000Z"
+      "updated_at": "2026-09-09T13:25:49.669Z",
+      "booked_by_customer_id": "cust-manish-01"
     },
     {
       "id": "unit-sk-mdw-105",
@@ -672,9 +697,9 @@
       ],
       "total_price": 9975000,
       "status": "available",
-      "lock_version": 0,
+      "lock_version": 1,
       "created_at": "2026-01-20T00:00:00.000Z",
-      "updated_at": "2026-01-20T00:00:00.000Z"
+      "updated_at": "2026-09-09T13:25:49.671Z"
     },
     {
       "id": "unit-sk-hgt-1201",
@@ -929,6 +954,63 @@
       "is_duplicate": false,
       "created_at": "2026-02-10T00:00:00.000Z",
       "updated_at": "2026-02-12T00:00:00.000Z"
+    },
+    {
+      "id": "lead-1788960349698-dj3y",
+      "company_id": "comp-skyline-01",
+      "lead_number": "LD-0005",
+      "normalized_phone": "+919123499887",
+      "is_duplicate": false,
+      "first_name": "Harish",
+      "phone": "+91 91234 99887",
+      "stage_id": "stage-new-01",
+      "priority": "medium",
+      "temperature": "warm",
+      "buying_timeline": "1_month",
+      "source": "Website",
+      "tags": [],
+      "custom_fields": {},
+      "assigned_member_id": "mem-1788960349680",
+      "created_at": "2026-09-09T13:25:49.698Z",
+      "updated_at": "2026-09-09T13:25:49.698Z"
+    },
+    {
+      "id": "lead-1788960349700-wvno",
+      "company_id": "comp-skyline-01",
+      "lead_number": "LD-0006",
+      "normalized_phone": "+919123499887",
+      "is_duplicate": true,
+      "merged_into_lead_id": "lead-1788960349698-dj3y",
+      "first_name": "Harish Dup",
+      "phone": "9123499887",
+      "stage_id": "stage-new-01",
+      "priority": "medium",
+      "temperature": "warm",
+      "buying_timeline": "1_month",
+      "source": "Meta Ads",
+      "tags": [],
+      "custom_fields": {},
+      "assigned_member_id": "mem-arjun-04",
+      "created_at": "2026-09-09T13:25:49.700Z",
+      "updated_at": "2026-09-09T13:25:49.700Z"
+    },
+    {
+      "id": "lead-1788960349702-wtg6",
+      "company_id": "comp-greenfield-02",
+      "lead_number": "LD-0002",
+      "normalized_phone": "+919123499887",
+      "is_duplicate": false,
+      "first_name": "Harish In Company B",
+      "phone": "+91 91234 99887",
+      "stage_id": "stage-gf-new",
+      "priority": "medium",
+      "temperature": "warm",
+      "buying_timeline": "1_month",
+      "source": "Website",
+      "tags": [],
+      "custom_fields": {},
+      "created_at": "2026-09-09T13:25:49.702Z",
+      "updated_at": "2026-09-09T13:25:49.702Z"
     }
   ],
   "lead_activities": [
@@ -951,6 +1033,36 @@
       "title": "Stage moved to Negotiation",
       "description": "Stage changed from Site Visit Done to Negotiation",
       "created_at": "2026-09-08T09:35:00.000Z"
+    },
+    {
+      "id": "act-1788960349698",
+      "company_id": "comp-skyline-01",
+      "lead_id": "lead-1788960349698-dj3y",
+      "actor_member_id": "mem-1788960349680",
+      "activity_type": "note",
+      "title": "Lead Ingested",
+      "description": "Lead created from Website. ",
+      "created_at": "2026-09-09T13:25:49.698Z"
+    },
+    {
+      "id": "act-1788960349700",
+      "company_id": "comp-skyline-01",
+      "lead_id": "lead-1788960349700-wvno",
+      "actor_member_id": "mem-arjun-04",
+      "activity_type": "note",
+      "title": "Lead Ingested",
+      "description": "Lead created from Meta Ads. (Flagged as possible duplicate)",
+      "created_at": "2026-09-09T13:25:49.700Z"
+    },
+    {
+      "id": "act-1788960349702",
+      "company_id": "comp-greenfield-02",
+      "lead_id": "lead-1788960349702-wtg6",
+      "actor_member_id": "system",
+      "activity_type": "note",
+      "title": "Lead Ingested",
+      "description": "Lead created from Website. ",
+      "created_at": "2026-09-09T13:25:49.702Z"
     }
   ],
   "tasks": [
@@ -1039,6 +1151,23 @@
       "agreement_date": "2026-09-15",
       "created_at": "2026-09-01T00:00:00.000Z",
       "updated_at": "2026-09-01T00:00:00.000Z"
+    },
+    {
+      "id": "book-1788960349669",
+      "company_id": "comp-skyline-01",
+      "booking_number": "BK-349669",
+      "customer_id": "cust-manish-01",
+      "unit_id": "unit-sk-mdw-104",
+      "project_id": "proj-skyline-meadows",
+      "sales_member_id": "mem-arjun-04",
+      "base_quoted_amount": 6600000,
+      "discount_amount": 0,
+      "net_sale_amount": 6600000,
+      "booking_amount": 100000,
+      "status": "confirmed",
+      "booking_date": "2026-09-09",
+      "created_at": "2026-09-09T13:25:49.669Z",
+      "updated_at": "2026-09-09T13:25:49.669Z"
     }
   ],
   "booking_payment_schedules": [
@@ -1089,6 +1218,54 @@
       "status": "pending",
       "paid_amount": 0,
       "created_at": "2026-09-01T00:00:00.000Z"
+    },
+    {
+      "id": "sched-book-1788960349669-01",
+      "company_id": "comp-skyline-01",
+      "booking_id": "book-1788960349669",
+      "milestone_name": "Initial Booking Token",
+      "percentage": 10,
+      "amount": 660000,
+      "due_date": "2026-09-09",
+      "status": "partially_paid",
+      "paid_amount": 100000,
+      "created_at": "2026-09-09T13:25:49.669Z"
+    },
+    {
+      "id": "sched-book-1788960349669-02",
+      "company_id": "comp-skyline-01",
+      "booking_id": "book-1788960349669",
+      "milestone_name": "Sale Agreement Execution (20%)",
+      "percentage": 20,
+      "amount": 1320000,
+      "due_date": "2026-10-09",
+      "status": "pending",
+      "paid_amount": 0,
+      "created_at": "2026-09-09T13:25:49.669Z"
+    },
+    {
+      "id": "sched-book-1788960349669-03",
+      "company_id": "comp-skyline-01",
+      "booking_id": "book-1788960349669",
+      "milestone_name": "Demarcation & Construction Milestone",
+      "percentage": 30,
+      "amount": 1980000,
+      "due_date": "2026-12-08",
+      "status": "pending",
+      "paid_amount": 0,
+      "created_at": "2026-09-09T13:25:49.669Z"
+    },
+    {
+      "id": "sched-book-1788960349669-04",
+      "company_id": "comp-skyline-01",
+      "booking_id": "book-1788960349669",
+      "milestone_name": "Registration & Possession Handover",
+      "percentage": 40,
+      "amount": 2640000,
+      "due_date": "2027-03-08",
+      "status": "pending",
+      "paid_amount": 0,
+      "created_at": "2026-09-09T13:25:49.669Z"
     }
   ],
   "customer_payments": [
@@ -1186,5 +1363,39 @@
   "audit_logs": [],
   "notifications": [],
   "support_access_sessions": [],
-  "razorpay_webhook_events": []
+  "razorpay_webhook_events": [
+    {
+      "id": "rpevt-1788960349685",
+      "event_id": "evt_test_1788960349682",
+      "event_name": "subscription.charged",
+      "payload": {
+        "event_id": "evt_test_1788960349682",
+        "event": "subscription.charged",
+        "payload": {
+          "payment": {
+            "entity": {
+              "id": "pay_1788960349683",
+              "amount": 1999900,
+              "currency": "INR",
+              "notes": {
+                "company_id": "comp-skyline-01",
+                "plan_id": "plan-business-03"
+              }
+            }
+          },
+          "subscription": {
+            "entity": {
+              "id": "sub_RP1029384756",
+              "notes": {
+                "company_id": "comp-skyline-01"
+              }
+            }
+          }
+        }
+      },
+      "processed": true,
+      "created_at": "2026-09-09T13:25:49.685Z",
+      "processed_at": "2026-09-09T13:25:49.690Z"
+    }
+  ]
 }

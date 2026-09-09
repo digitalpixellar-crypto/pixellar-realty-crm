@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { revalidatePath } from 'next/cache';
+import { WhatsAppActionModal } from '@/components/leads/WhatsAppActionModal';
 
 interface KanbanPageProps {
   params: Promise<{ slug: string }>;
@@ -130,13 +131,22 @@ export default async function TenantKanbanPage({ params }: KanbanPageProps) {
                         </div>
 
                         <div className="mt-2 text-xs text-slate-500 space-y-1">
-                          <a
-                            href={`tel:${lead.phone}`}
-                            className="flex items-center gap-1.5 font-mono text-brand-600 hover:underline font-semibold"
-                          >
-                            <PhoneCall className="w-3 h-3 text-slate-400" />
-                            <span>{lead.phone}</span>
-                          </a>
+                          <div className="flex items-center justify-between">
+                            <a
+                              href={`tel:${lead.phone}`}
+                              className="flex items-center gap-1.5 font-mono text-brand-600 hover:underline font-semibold"
+                            >
+                              <PhoneCall className="w-3 h-3 text-slate-400" />
+                              <span>{lead.phone}</span>
+                            </a>
+                            <WhatsAppActionModal
+                              lead={lead}
+                              company={company}
+                              project={project}
+                              agentName={agent?.name || 'Sales Specialist'}
+                              compact={true}
+                            />
+                          </div>
                           {project && (
                             <div className="flex items-center gap-1.5 text-slate-600 truncate">
                               <Building2 className="w-3 h-3 text-slate-400" />

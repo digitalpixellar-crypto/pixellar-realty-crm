@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { revalidatePath } from 'next/cache';
+import { WhatsAppActionModal } from '@/components/leads/WhatsAppActionModal';
 
 interface LeadsPageProps {
   params: Promise<{ slug: string }>;
@@ -223,13 +224,22 @@ export default async function TenantLeadsPage({ params, searchParams }: LeadsPag
                         <div className="text-xs text-slate-500">{lead.source}</div>
                       </td>
                       <td className="px-6 py-4">
-                        <a
-                          href={`tel:${lead.phone}`}
-                          className="font-mono text-xs text-brand-600 hover:underline flex items-center gap-1 font-semibold"
-                        >
-                          <PhoneCall className="w-3 h-3" />
-                          {lead.phone}
-                        </a>
+                        <div className="flex items-center gap-2">
+                          <a
+                            href={`tel:${lead.phone}`}
+                            className="font-mono text-xs text-brand-600 hover:underline flex items-center gap-1 font-semibold"
+                          >
+                            <PhoneCall className="w-3 h-3 text-slate-400" />
+                            <span>{lead.phone}</span>
+                          </a>
+                          <WhatsAppActionModal
+                            lead={lead}
+                            company={company}
+                            project={project}
+                            agentName={agent?.name || 'Sales Specialist'}
+                            compact={true}
+                          />
+                        </div>
                         {lead.email && <div className="text-xs text-slate-500 mt-0.5">{lead.email}</div>}
                       </td>
                       <td className="px-6 py-4 text-xs font-medium text-slate-800">

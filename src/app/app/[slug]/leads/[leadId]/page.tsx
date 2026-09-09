@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { revalidatePath } from 'next/cache';
+import { WhatsAppActionModal } from '@/components/leads/WhatsAppActionModal';
 
 interface LeadProfilePageProps {
   params: Promise<{ slug: string; leadId: string }>;
@@ -155,15 +156,23 @@ export default async function LeadProfilePage({ params }: LeadProfilePageProps) 
           </div>
         </div>
 
-        {/* Mobile Fast Action Buttons */}
+        {/* Fast Action Buttons (Call, WhatsApp, Email) */}
         <div className="flex items-center gap-2">
           <a
             href={`tel:${lead.phone}`}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold shadow-sm transition-all"
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold shadow-sm transition-all"
           >
-            <PhoneCall className="w-4 h-4" />
-            <span>Call Now</span>
+            <PhoneCall className="w-4 h-4 text-emerald-400" />
+            <span>Call</span>
           </a>
+
+          <WhatsAppActionModal
+            lead={lead}
+            company={company}
+            project={project}
+            agentName={agent?.name || 'Sales Specialist'}
+          />
+
           {lead.email && (
             <a
               href={`mailto:${lead.email}`}

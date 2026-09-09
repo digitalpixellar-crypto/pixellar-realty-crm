@@ -162,7 +162,6 @@ export default async function TenantKanbanPage({ params }: KanbanPageProps) {
                             <select
                               name="target_stage_id"
                               defaultValue={lead.stage_id}
-                              onChange={(e) => e.target.form?.requestSubmit()}
                               className="text-[11px] font-medium bg-slate-50 border border-slate-200 rounded px-1.5 py-0.5 text-slate-700 focus:outline-none cursor-pointer"
                             >
                               {stages.map((st) => (
@@ -171,6 +170,13 @@ export default async function TenantKanbanPage({ params }: KanbanPageProps) {
                                 </option>
                               ))}
                             </select>
+                            <button
+                              type="submit"
+                              className="px-1.5 py-0.5 rounded bg-brand-50 hover:bg-brand-100 text-brand-700 text-[10px] font-bold transition-colors"
+                              title="Advance lead to selected stage"
+                            >
+                              Move
+                            </button>
                           </form>
                         </div>
                       </div>

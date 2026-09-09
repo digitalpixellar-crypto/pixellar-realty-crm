@@ -583,20 +583,24 @@ RETURNS SETOF UUID AS $$
 $$ LANGUAGE sql SECURITY DEFINER STABLE;
 
 -- Tenant Isolation Policies for Companies
+DROP POLICY IF EXISTS "Users can view companies they are members of" ON companies;
 CREATE POLICY "Users can view companies they are members of"
   ON companies FOR SELECT
   USING (id IN (SELECT get_user_company_ids()));
 
 -- Tenant Isolation Policies for Company Members
+DROP POLICY IF EXISTS "Users can view members within their company" ON company_members;
 CREATE POLICY "Users can view members within their company"
   ON company_members FOR SELECT
   USING (company_id IN (SELECT get_user_company_ids()));
 
 -- Tenant Isolation Policies for Projects
+DROP POLICY IF EXISTS "Members can view projects in their company" ON projects;
 CREATE POLICY "Members can view projects in their company"
   ON projects FOR SELECT
   USING (company_id IN (SELECT get_user_company_ids()));
 
+DROP POLICY IF EXISTS "Admins can manage projects in their company" ON projects;
 CREATE POLICY "Admins can manage projects in their company"
   ON projects FOR ALL
   USING (company_id IN (
@@ -605,16 +609,19 @@ CREATE POLICY "Admins can manage projects in their company"
   ));
 
 -- Tenant Isolation Policies for Leads
+DROP POLICY IF EXISTS "Users can access leads within their company" ON leads;
 CREATE POLICY "Users can access leads within their company"
   ON leads FOR ALL
   USING (company_id IN (SELECT get_user_company_ids()));
 
 -- Tenant Isolation Policies for Bookings
+DROP POLICY IF EXISTS "Users can access bookings within their company" ON bookings;
 CREATE POLICY "Users can access bookings within their company"
   ON bookings FOR ALL
   USING (company_id IN (SELECT get_user_company_ids()));
 
 -- Tenant Isolation Policies for Customer Payments
+DROP POLICY IF EXISTS "Users can access payments within their company" ON customer_payments;
 CREATE POLICY "Users can access payments within their company"
   ON customer_payments FOR ALL
   USING (company_id IN (SELECT get_user_company_ids()));

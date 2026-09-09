@@ -52,27 +52,51 @@ export async function sendEmail({
 
       let data = await res.json().catch(() => ({}));
 
-      // Automatic fallback: if custom domain fails verification, retry with onboarding@resend.dev
-      if (!res.ok && activeFrom !== 'PIXELLAR REALTY CRM <onboarding@resend.dev>') {
+      // Automatic fallback: if custom domain fails verification, try verified domain mail.digitalpixellar.com then onboarding@resend.dev
+      if (!res.ok) {
         const errLower = JSON.stringify(data).toLowerCase();
         if (errLower.includes('domain') || errLower.includes('verify') || res.status === 403) {
-          console.warn(`[Resend Auto-Fallback] Sender ${activeFrom} failed (${data.message || 'domain unverified'}). Retrying with onboarding@resend.dev...`);
-          activeFrom = 'PIXELLAR REALTY CRM <onboarding@resend.dev>';
-          res = await fetch(RESEND_API_URL, {
-            method: 'POST',
-            headers: {
-              Authorization: `Bearer ${apiKey}`,
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              from: activeFrom,
-              to: recipients,
-              subject,
-              html,
-              text: text || subject,
-            }),
-          });
-          data = await res.json().catch(() => ({}));
+          // Attempt 1: Try verified subdomain mail.digitalpixellar.com
+          if (activeFrom !== 'PIXELLAR REALTY CRM <auth@mail.digitalpixellar.com>') {
+            console.warn(`[Resend Auto-Fallback 1] Sender ${activeFrom} failed. Retrying with auth@mail.digitalpixellar.com...`);
+            activeFrom = 'PIXELLAR REALTY CRM <auth@mail.digitalpixellar.com>';
+            res = await fetch(RESEND_API_URL, {
+              method: 'POST',
+              headers: {
+                Authorization: `Bearer ${apiKey}`,
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                from: activeFrom,
+                to: recipients,
+                subject,
+                html,
+                text: text || subject,
+              }),
+            });
+            data = await res.json().catch(() => ({}));
+          }
+
+          // Attempt 2: If still unverified, fallback to onboarding@resend.dev
+          if (!res.ok && activeFrom !== 'PIXELLAR REALTY CRM <onboarding@resend.dev>') {
+            console.warn(`[Resend Auto-Fallback 2] Retrying with onboarding@resend.dev...`);
+            activeFrom = 'PIXELLAR REALTY CRM <onboarding@resend.dev>';
+            res = await fetch(RESEND_API_URL, {
+              method: 'POST',
+              headers: {
+                Authorization: `Bearer ${apiKey}`,
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                from: activeFrom,
+                to: recipients,
+                subject,
+                html,
+                text: text || subject,
+              }),
+            });
+            data = await res.json().catch(() => ({}));
+          }
         }
       }
 

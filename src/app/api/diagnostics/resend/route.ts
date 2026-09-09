@@ -49,7 +49,7 @@ export async function GET() {
         from: fromEmail,
         to: ['digitalpixellar@gmail.com'],
         subject: 'Resend Diagnostic Test - Pixellar Realty CRM',
-        text: 'This is a diagnostic test to verify your Resend email setup on pixellarrealty.com.',
+        text: 'This is a diagnostic test to verify your Resend email setup on pixellarealty.com.',
       }),
     });
     const sendData = await sendRes.json().catch(() => ({}));

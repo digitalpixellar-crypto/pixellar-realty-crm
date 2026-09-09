@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "PIXELLAR REALTY CRM | By Digital Pixellar",
   description: "Enterprise Multi-Tenant Real Estate CRM SaaS Platform by Digital Pixellar. Engineered for property developers, builders, and real estate marketing agencies.",
-  metadataBase: new URL("https://pixellarrealty.com"),
+  metadataBase: new URL("https://pixellarealty.com"),
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,

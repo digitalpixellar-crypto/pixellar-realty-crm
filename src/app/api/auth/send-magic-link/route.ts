@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.pixellarrealty.com';
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.pixellarealty.com';
     const loginToken = `magic_${Date.now()}_${Math.random().toString(36).substring(2, 10)}`;
     const destination = isOwner ? '/platform/dashboard' : `/app/${targetCompanySlug}/dashboard`;
     const magicLoginUrl = `${appUrl}/login?auto_login=true&email=${encodeURIComponent(email)}&token=${loginToken}&dest=${encodeURIComponent(destination)}`;

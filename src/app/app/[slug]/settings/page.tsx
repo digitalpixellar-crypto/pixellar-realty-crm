@@ -75,7 +75,7 @@ async function handleInviteMember(formData: FormData) {
 
   try {
     const inv = db.createInvitation(company.id, 'mem-vikram-01', email, role);
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.pixellarrealty.com';
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.pixellarealty.com';
     const inviteUrl = `${appUrl}/invite/accept?token=${inv.token}`;
     const roleLabel = ROLE_LABELS[role as keyof typeof ROLE_LABELS] || role;
 
@@ -103,7 +103,7 @@ async function handleResendInvite(formData: FormData) {
     const existing = db.getInvitationByToken(token);
     if (existing) {
       const refreshed = db.createInvitation(company.id, 'mem-vikram-01', existing.email, existing.role);
-      const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.pixellarrealty.com';
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.pixellarealty.com';
       const inviteUrl = `${appUrl}/invite/accept?token=${refreshed.token}`;
       const roleLabel = ROLE_LABELS[existing.role as keyof typeof ROLE_LABELS] || existing.role;
 

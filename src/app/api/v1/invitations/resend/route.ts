@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
     const role = invitation?.role || 'sales_executive';
     const newInvitation = db.createInvitation(company.id, 'mem-vikram-01', targetEmail, role);
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.pixellarrealty.com';
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.pixellarealty.com';
     const inviteUrl = `${appUrl}/invite/accept?token=${newInvitation.token}`;
     const roleLabel = ROLE_LABELS[role as keyof typeof ROLE_LABELS] || role;
 

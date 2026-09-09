@@ -14,13 +14,17 @@ import {
   ShieldCheck,
   Building2,
   DollarSign,
+  Map as MapIcon,
+  LayoutGrid,
+  ListFilter,
 } from 'lucide-react';
 import Link from 'next/link';
 import { revalidatePath } from 'next/cache';
+import { InteractiveMasterLayout } from '@/components/inventory/InteractiveMasterLayout';
 
 interface InventoryPageProps {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ project?: string; status?: string; message?: string; error?: string }>;
+  searchParams: Promise<{ project?: string; status?: string; view?: string; message?: string; error?: string }>;
 }
 
 async function handleHoldUnit(formData: FormData) {
@@ -135,7 +139,7 @@ async function handleAddUnit(formData: FormData) {
 
 export default async function TenantInventoryPage({ params, searchParams }: InventoryPageProps) {
   const { slug } = await params;
-  const { project: filterProjectId, status: filterStatus } = await searchParams;
+  const { project: filterProjectId, status: filterStatus, view: requestedView } = await searchParams;
 
   const context = await getTenantContext(slug);
   if (!context) notFound();
@@ -145,10 +149,16 @@ export default async function TenantInventoryPage({ params, searchParams }: Inve
   const leads = db.getLeads(company.id);
   const channelPartners = db.getChannelPartners(company.id);
 
-  let units = db.getUnits(company.id, filterProjectId);
+  const selectedProject = filterProjectId
+    ? projects.find((p) => p.id === filterProjectId) || projects[0]
+    : projects[0];
+
+  let units = db.getUnits(company.id, selectedProject?.id);
   if (filterStatus) {
     units = units.filter((u) => u.status === filterStatus);
   }
+
+  const currentView = requestedView || 'layout';
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto">
@@ -164,7 +174,46 @@ export default async function TenantInventoryPage({ params, searchParams }: Inve
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
+          {/* View Switcher Tabs */}
+          <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200/80 shadow-xs">
+            <Link
+              href={`/app/${slug}/inventory?project=${selectedProject?.id || ''}&view=layout`}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                currentView === 'layout'
+                  ? 'bg-white text-emerald-700 shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <MapIcon className="w-3.5 h-3.5 text-emerald-600" />
+              <span>Master Plan (SVG)</span>
+            </Link>
+
+            <Link
+              href={`/app/${slug}/inventory?project=${selectedProject?.id || ''}&view=grid`}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                currentView === 'grid'
+                  ? 'bg-white text-brand-700 shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <LayoutGrid className="w-3.5 h-3.5 text-brand-600" />
+              <span>Unit Grid</span>
+            </Link>
+
+            <Link
+              href={`/app/${slug}/inventory?project=${selectedProject?.id || ''}&view=table`}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                currentView === 'table'
+                  ? 'bg-white text-indigo-700 shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <ListFilter className="w-3.5 h-3.5 text-indigo-600" />
+              <span>Table</span>
+            </Link>
+          </div>
+
           <a
             href="#add-unit-form"
             className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-brand-600 hover:bg-brand-700 text-white font-semibold text-sm shadow-sm transition-all"
@@ -191,13 +240,51 @@ export default async function TenantInventoryPage({ params, searchParams }: Inve
         <span className="text-xs text-slate-400 font-mono">Status: Enforced</span>
       </div>
 
-      {/* Visual Unit Matrix Grid */}
-      <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
-          <div>
-            <h3 className="font-bold text-base text-slate-900">Interactive Unit Layout Grid</h3>
-            <p className="text-xs text-slate-500">Color-coded real-time availability</p>
-          </div>
+      {/* Project Selector Bar */}
+      {projects.length > 1 && (
+        <div className="flex items-center gap-2 overflow-x-auto pb-1">
+          <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider shrink-0">
+            Select Development:
+          </span>
+          {projects.map((proj) => (
+            <Link
+              key={proj.id}
+              href={`/app/${slug}/inventory?project=${proj.id}&view=${currentView}`}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold shrink-0 transition-all border ${
+                selectedProject?.id === proj.id
+                  ? 'bg-brand-50 border-brand-300 text-brand-700 shadow-xs'
+                  : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+              }`}
+            >
+              {proj.name} ({proj.code})
+            </Link>
+          ))}
+        </div>
+      )}
+
+      {/* 1. MASTER LAYOUT VIEW (SVG MAP) */}
+      {currentView === 'layout' && (
+        <InteractiveMasterLayout
+          units={units}
+          projectName={selectedProject?.name || 'Skyline Meadows Villa Plots'}
+          projectCode={selectedProject?.code || 'SK-MDW'}
+          projectLocation={selectedProject?.location || 'Mokila, Shankarpally Road, Hyderabad'}
+          companySlug={slug}
+          companyId={company.id}
+          companyName={company.name}
+          leads={leads}
+          channelPartners={channelPartners}
+        />
+      )}
+
+      {/* 2. VISUAL UNIT MATRIX GRID */}
+      {(currentView === 'grid' || currentView === 'layout') && (
+        <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+            <div>
+              <h3 className="font-bold text-base text-slate-900">Interactive Unit Layout Grid</h3>
+              <p className="text-xs text-slate-500">Color-coded real-time availability</p>
+            </div>
 
           <div className="flex flex-wrap items-center gap-2 text-xs">
             <span className="flex items-center gap-1">
@@ -279,78 +366,81 @@ export default async function TenantInventoryPage({ params, searchParams }: Inve
           })}
         </div>
       </div>
+    )}
 
       {/* Detailed Inventory Table */}
-      <div className="rounded-xl border border-slate-200 bg-white overflow-hidden shadow-sm">
-        <div className="px-6 py-4 border-b border-slate-200">
-          <h3 className="font-bold text-slate-900">Inventory Directory</h3>
-          <p className="text-xs text-slate-500">Complete specifications, areas, prices, and status</p>
-        </div>
+      {(currentView === 'table' || currentView === 'layout') && (
+        <div className="rounded-xl border border-slate-200 bg-white overflow-hidden shadow-sm">
+          <div className="px-6 py-4 border-b border-slate-200">
+            <h3 className="font-bold text-slate-900">Inventory Directory</h3>
+            <p className="text-xs text-slate-500">Complete specifications, areas, prices, and status</p>
+          </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm text-slate-700">
-            <thead className="bg-slate-50 text-xs uppercase font-semibold text-slate-500 border-b border-slate-200">
-              <tr>
-                <th className="px-6 py-3.5">Unit / Plot #</th>
-                <th className="px-6 py-3.5">Project & Block</th>
-                <th className="px-6 py-3.5">Type & Area</th>
-                <th className="px-6 py-3.5">Facing</th>
-                <th className="px-6 py-3.5">Base Price</th>
-                <th className="px-6 py-3.5">Total Price</th>
-                <th className="px-6 py-3.5">Status</th>
-                <th className="px-6 py-3.5 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {units.map((unit) => {
-                const project = projects.find((p) => p.id === unit.project_id);
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm text-slate-700">
+              <thead className="bg-slate-50 text-xs uppercase font-semibold text-slate-500 border-b border-slate-200">
+                <tr>
+                  <th className="px-6 py-3.5">Unit / Plot #</th>
+                  <th className="px-6 py-3.5">Project & Block</th>
+                  <th className="px-6 py-3.5">Type & Area</th>
+                  <th className="px-6 py-3.5">Facing</th>
+                  <th className="px-6 py-3.5">Base Price</th>
+                  <th className="px-6 py-3.5">Total Price</th>
+                  <th className="px-6 py-3.5">Status</th>
+                  <th className="px-6 py-3.5 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {units.map((unit) => {
+                  const project = projects.find((p) => p.id === unit.project_id);
 
-                return (
-                  <tr key={unit.id} className="hover:bg-slate-50/80 transition-colors">
-                    <td className="px-6 py-4 font-mono font-bold text-slate-900">{unit.unit_number}</td>
-                    <td className="px-6 py-4">
-                      <div className="font-semibold text-slate-800">{project?.name || 'Project'}</div>
-                      <div className="text-xs text-slate-500">{unit.tower_block || 'Standard Block'}</div>
-                    </td>
-                    <td className="px-6 py-4 text-xs">
-                      <div>{unit.plot_or_unit_type}</div>
-                      <div className="text-slate-500">
-                        {unit.plot_area || unit.super_builtup_area} {unit.area_unit}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-xs">{unit.facing || 'East'}</td>
-                    <td className="px-6 py-4 text-xs">{formatINR(unit.base_price)}</td>
-                    <td className="px-6 py-4 font-bold text-slate-900">{formatINR(unit.total_price)}</td>
-                    <td className="px-6 py-4">
-                      <StatusBadge status={unit.status} />
-                    </td>
-                    <td className="px-6 py-4 text-right space-x-2">
-                      {unit.status === 'available' ? (
-                        <>
-                          <a
-                            href={`#hold-unit-${unit.id}`}
-                            className="text-xs font-semibold text-amber-600 hover:text-amber-800 hover:underline"
-                          >
-                            Hold
-                          </a>
-                          <a
-                            href={`#book-unit-${unit.id}`}
-                            className="text-xs font-semibold text-brand-600 hover:text-brand-800 hover:underline"
-                          >
-                            Book Unit
-                          </a>
-                        </>
-                      ) : (
-                        <span className="text-xs text-slate-400 italic">Locked</span>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                  return (
+                    <tr key={unit.id} className="hover:bg-slate-50/80 transition-colors">
+                      <td className="px-6 py-4 font-mono font-bold text-slate-900">{unit.unit_number}</td>
+                      <td className="px-6 py-4">
+                        <div className="font-semibold text-slate-800">{project?.name || 'Project'}</div>
+                        <div className="text-xs text-slate-500">{unit.tower_block || 'Standard Block'}</div>
+                      </td>
+                      <td className="px-6 py-4 text-xs">
+                        <div>{unit.plot_or_unit_type}</div>
+                        <div className="text-slate-500">
+                          {unit.plot_area || unit.super_builtup_area} {unit.area_unit}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-xs">{unit.facing || 'East'}</td>
+                      <td className="px-6 py-4 text-xs">{formatINR(unit.base_price)}</td>
+                      <td className="px-6 py-4 font-bold text-slate-900">{formatINR(unit.total_price)}</td>
+                      <td className="px-6 py-4">
+                        <StatusBadge status={unit.status} />
+                      </td>
+                      <td className="px-6 py-4 text-right space-x-2">
+                        {unit.status === 'available' ? (
+                          <>
+                            <a
+                              href={`#hold-unit-${unit.id}`}
+                              className="text-xs font-semibold text-amber-600 hover:text-amber-800 hover:underline"
+                            >
+                              Hold
+                            </a>
+                            <a
+                              href={`#book-unit-${unit.id}`}
+                              className="text-xs font-semibold text-brand-600 hover:text-brand-800 hover:underline"
+                            >
+                              Book Unit
+                            </a>
+                          </>
+                        ) : (
+                          <span className="text-xs text-slate-400 italic">Locked</span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Hold Modals for Available Units */}
       {units.filter((u) => u.status === 'available').map((unit) => (

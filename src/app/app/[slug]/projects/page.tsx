@@ -12,6 +12,7 @@ import {
   ExternalLink,
   Layers,
   ArrowRight,
+  Map as MapIcon,
 } from 'lucide-react';
 import Link from 'next/link';
 import { revalidatePath } from 'next/cache';
@@ -177,16 +178,26 @@ export default async function TenantProjectsPage({ params }: ProjectsPageProps) 
                 )}
               </div>
 
-              {/* Action Link */}
-              <div className="px-6 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
+              {/* Action Links */}
+              <div className="px-6 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between flex-wrap gap-2">
                 <span className="text-xs text-slate-500">Developer: {proj.developer_name}</span>
-                <Link
-                  href={`/app/${slug}/inventory?project=${proj.id}`}
-                  className="inline-flex items-center gap-1 text-xs font-semibold text-brand-600 hover:text-brand-800"
-                >
-                  <span>View Units & Plots ({projectUnits.length})</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </Link>
+                <div className="flex items-center gap-3">
+                  <Link
+                    href={`/app/${slug}/inventory?project=${proj.id}&view=layout`}
+                    className="inline-flex items-center gap-1 text-xs font-bold text-emerald-700 hover:text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200/80 transition-colors"
+                  >
+                    <MapIcon className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>Master Plan (SVG)</span>
+                  </Link>
+
+                  <Link
+                    href={`/app/${slug}/inventory?project=${proj.id}&view=table`}
+                    className="inline-flex items-center gap-1 text-xs font-semibold text-brand-600 hover:text-brand-800"
+                  >
+                    <span>Units ({projectUnits.length})</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </Link>
+                </div>
               </div>
             </div>
           );

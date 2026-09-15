@@ -5,7 +5,7 @@ import { z } from 'zod';
 const HoldSchema = z.object({
   company_id: z.string().min(1),
   unit_id: z.string().min(1),
-  lead_id: z.string().min(1),
+  lead_id: z.string().optional(),
   member_id: z.string().default('mem-arjun-04'),
   hold_amount: z.number().default(50000),
   duration_hours: z.number().default(48),
@@ -25,19 +25,21 @@ export async function POST(req: NextRequest) {
 
     const unit = db.holdUnit(company_id, unit_id, lead_id, member_id, hold_amount, duration_hours, notes);
 
-    // Also log activity to lead
+    // Also log activity to lead if a lead_id was provided
     try {
-      db.addLeadActivity(company_id, {
-        company_id,
-        lead_id,
-        actor_member_id: member_id,
-        activity_type: 'task',
-        title: `Unit ${unit.unit_number} Placed on Hold`,
-        description: `48-Hour expiring hold placed for ₹${hold_amount.toLocaleString('en-IN')}. Expires at ${unit.hold_expires_at}.`,
-      });
-      db.updateLead(company_id, lead_id, {
-        last_contacted_at: new Date().toISOString(),
-      });
+      if (lead_id) {
+        db.addLeadActivity(company_id, {
+          company_id,
+          lead_id,
+          actor_member_id: member_id,
+          activity_type: 'task',
+          title: `Unit ${unit.unit_number} Placed on Hold`,
+          description: `48-Hour expiring hold placed for ₹${hold_amount.toLocaleString('en-IN')}. Expires at ${unit.hold_expires_at}.`,
+        });
+        db.updateLead(company_id, lead_id, {
+          last_contacted_at: new Date().toISOString(),
+        });
+      }
     } catch (e) {
       // Activity logging shouldn't block hold
     }

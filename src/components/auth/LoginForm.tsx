@@ -61,6 +61,7 @@ export function LoginForm({ initialEmail = '', initialMessage }: LoginFormProps)
     if (autoLogin === 'true' && paramEmail) {
       handleDirectSignIn(paramEmail, dest || undefined);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
   // Direct Sign In

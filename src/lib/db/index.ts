@@ -519,7 +519,7 @@ export const db = {
   holdUnit(
     companyId: string,
     unitId: string,
-    leadId: string,
+    leadId: string | undefined,
     memberId: string,
     holdAmount: number,
     durationHours = 48,
@@ -539,7 +539,7 @@ export const db = {
 
     unit.status = 'on_hold';
     unit.hold_expires_at = holdExpiresAt;
-    unit.held_by_lead_id = leadId;
+    unit.held_by_lead_id = leadId || undefined;
     unit.lock_version += 1;
     unit.updated_at = new Date().toISOString();
 
@@ -547,7 +547,7 @@ export const db = {
       id: `hold-${Date.now()}`,
       company_id: companyId,
       unit_id: unitId,
-      lead_id: leadId,
+      lead_id: leadId || '',
       member_id: memberId,
       hold_amount: holdAmount,
       hold_expires_at: holdExpiresAt,

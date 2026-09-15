@@ -139,17 +139,18 @@ async function handleDeleteMember(formData: FormData) {
 
 export default async function TenantSettingsPage({ params, searchParams }: SettingsPageProps) {
   const { slug } = await params;
-  const { tab = 'company' } = await searchParams;
+  const resolvedSearchParams = searchParams ? await searchParams : {};
+  const { tab = 'company' } = resolvedSearchParams || {};
 
   const context = await getTenantContext(slug);
   if (!context) notFound();
 
   const company = context.company;
-  const members = db.getCompanyMembers(company.id);
+  const members = db.getCompanyMembers(company.id) || [];
   const plan = db.getSubscriptionPlans().find((p) => p.id === company.plan_id);
   const subscription = db.getCompanySubscription(company.id);
-  const invoices = db.getSubscriptionInvoices(company.id);
-  const invitations = db.getInvitations(company.id);
+  const invoices = db.getSubscriptionInvoices(company.id) || [];
+  const invitations = db.getInvitations(company.id) || [];
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto">

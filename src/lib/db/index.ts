@@ -126,7 +126,18 @@ function loadState(): DatabaseState {
 
     if (fs.existsSync(STATE_FILE)) {
       const content = fs.readFileSync(STATE_FILE, 'utf-8');
-      inMemoryState = JSON.parse(content);
+      const loaded = JSON.parse(content);
+      const initial = getInitialState();
+      inMemoryState = {
+        ...initial,
+        ...loaded,
+        invitations: Array.isArray(loaded.invitations) ? loaded.invitations : [],
+        unit_holds: Array.isArray(loaded.unit_holds) ? loaded.unit_holds : [],
+        audit_logs: Array.isArray(loaded.audit_logs) ? loaded.audit_logs : [],
+        notifications: Array.isArray(loaded.notifications) ? loaded.notifications : [],
+        support_access_sessions: Array.isArray(loaded.support_access_sessions) ? loaded.support_access_sessions : [],
+        razorpay_webhook_events: Array.isArray(loaded.razorpay_webhook_events) ? loaded.razorpay_webhook_events : [],
+      };
       return inMemoryState!;
     }
   } catch (err) {

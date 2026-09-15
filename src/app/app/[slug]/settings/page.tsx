@@ -22,6 +22,7 @@ import {
   Send,
 } from 'lucide-react';
 import { revalidatePath } from 'next/cache';
+import Link from 'next/link';
 import { sendEmail, generateInvitationHtml } from '@/lib/mail/resend';
 
 interface SettingsPageProps {
@@ -511,13 +512,12 @@ export default async function TenantSettingsPage({ params, searchParams }: Setti
               </div>
 
               <div className="pt-3 border-t border-slate-100">
-                <button
-                  type="button"
-                  onClick={() => alert('Razorpay Test Mode Checkout would open here in live browser.')}
-                  className="w-full py-2 px-3 rounded-lg border border-slate-300 hover:bg-slate-50 font-semibold text-xs text-slate-700 transition-colors text-center"
+                <Link
+                  href="/platform/plans"
+                  className="block w-full py-2 px-3 rounded-lg border border-slate-300 hover:bg-slate-50 font-semibold text-xs text-slate-700 transition-colors text-center"
                 >
                   Upgrade Subscription Plan
-                </button>
+                </Link>
               </div>
             </div>
           </div>

@@ -56,8 +56,32 @@ export async function GET() {
         }
       }
     }
-  } catch (e: any) {
-    domainsError = e.message;
+  // 1b. Check if pixellarrealty.com exists in Resend, if not create it
+  let createPixellarRealtyResult: any = null;
+  const hasPixellarRealty = domainsData?.data?.some((d: any) => d.name === 'pixellarrealty.com');
+  if (!hasPixellarRealty && apiKey) {
+    try {
+      const createRes = await fetch('https://api.resend.com/domains', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: 'pixellarrealty.com',
+          region: 'ap-northeast-1',
+        }),
+      });
+      createPixellarRealtyResult = await createRes.json().catch(() => ({}));
+      if (createPixellarRealtyResult?.id) {
+        await fetch(`https://api.resend.com/domains/${createPixellarRealtyResult.id}/verify`, {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${apiKey}` },
+        });
+      }
+    } catch (e: any) {
+      createPixellarRealtyResult = { error: e.message };
+    }
   }
 
   // 2. Test send to digitalpixellar@gmail.com
@@ -131,6 +155,7 @@ export async function GET() {
     fromEmail,
     domainsData,
     domainDetails,
+    createPixellarRealtyResult,
     domainsError,
     testSendResult,
     testVerifiedDomainResult,

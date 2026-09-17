@@ -1,6 +1,62 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
+
+// POST: Delete a failed domain and recreate it fresh
+export async function POST(req: NextRequest) {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) return NextResponse.json({ error: 'No API key' }, { status: 500 });
+
+  const { domain, action } = await req.json();
+
+  if (action === 'reset') {
+    // 1. List domains and find the one to delete
+    const listRes = await fetch('https://api.resend.com/domains', {
+      headers: { Authorization: `Bearer ${apiKey}` },
+    });
+    const list = await listRes.json();
+    const target = list.data?.find((d: any) => d.name === domain);
+
+    let deleteResult = null;
+    if (target) {
+      const delRes = await fetch(`https://api.resend.com/domains/${target.id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${apiKey}` },
+      });
+      deleteResult = { status: delRes.status, id: target.id };
+    }
+
+    // 2. Re-create the domain
+    const createRes = await fetch('https://api.resend.com/domains', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: domain, region: 'ap-northeast-1' }),
+    });
+    const created = await createRes.json();
+
+    // 3. Trigger verify
+    let verifyResult = null;
+    if (created.id) {
+      const vRes = await fetch(`https://api.resend.com/domains/${created.id}/verify`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${apiKey}` },
+      });
+      verifyResult = { status: vRes.status };
+
+      // 4. Wait and check status
+      await new Promise((r) => setTimeout(r, 5000));
+      const checkRes = await fetch(`https://api.resend.com/domains/${created.id}`, {
+        headers: { Authorization: `Bearer ${apiKey}` },
+      });
+      const checkData = await checkRes.json();
+      return NextResponse.json({ deleteResult, created, verifyResult, currentStatus: checkData });
+    }
+
+    return NextResponse.json({ deleteResult, created, verifyResult });
+  }
+
+  return NextResponse.json({ error: 'Unknown action' }, { status: 400 });
+}
 
 export async function GET() {
   const apiKey = process.env.RESEND_API_KEY;

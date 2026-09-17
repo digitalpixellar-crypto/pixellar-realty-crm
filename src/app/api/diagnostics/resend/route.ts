@@ -22,6 +22,8 @@ export async function GET() {
   // 1. Check registered domains in Resend
   let domainsData: any = null;
   let domainsError: string | null = null;
+  const domainDetails: Record<string, any> = {};
+
   try {
     const res = await fetch('https://api.resend.com/domains', {
       headers: { Authorization: `Bearer ${apiKey}` },
@@ -31,6 +33,28 @@ export async function GET() {
       domainsError = data.message || data.error || `HTTP ${res.status}`;
     } else {
       domainsData = data;
+      // Trigger verify and fetch detailed record statuses
+      if (Array.isArray(data.data)) {
+        for (const d of data.data) {
+          try {
+            await fetch(`https://api.resend.com/domains/${d.id}/verify`, {
+              method: 'POST',
+              headers: { Authorization: `Bearer ${apiKey}` },
+            });
+            const detailRes = await fetch(`https://api.resend.com/domains/${d.id}`, {
+              headers: { Authorization: `Bearer ${apiKey}` },
+            });
+            const detailData = await detailRes.json().catch(() => ({}));
+            domainDetails[d.name] = {
+              id: d.id,
+              status: detailData.status,
+              records: detailData.records,
+            };
+          } catch (err: any) {
+            domainDetails[d.name] = { error: err.message };
+          }
+        }
+      }
     }
   } catch (e: any) {
     domainsError = e.message;
@@ -106,6 +130,7 @@ export async function GET() {
     maskedKey,
     fromEmail,
     domainsData,
+    domainDetails,
     domainsError,
     testSendResult,
     testVerifiedDomainResult,

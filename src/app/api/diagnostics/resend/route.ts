@@ -56,6 +56,10 @@ export async function GET() {
         }
       }
     }
+  } catch (e: any) {
+    domainsError = e.message;
+  }
+
   // 1b. Check if pixellarrealty.com exists in Resend, if not create it
   let createPixellarRealtyResult: any = null;
   const hasPixellarRealty = domainsData?.data?.some((d: any) => d.name === 'pixellarrealty.com');
